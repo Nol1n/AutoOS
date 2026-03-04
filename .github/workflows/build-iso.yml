@@ -25,14 +25,15 @@ jobs:
         run: |
           chmod +x tools/os/live-build/build-live.sh
 
-      - name: Run live-build
+      - name: Run live-build (as root)
         run: |
           set -euxo pipefail
           # Force jammy + amd64 to avoid ambiguous defaults
           export LB_DISTRIBUTION=jammy
           export LB_MIRROR_HTTP="http://archive.ubuntu.com/ubuntu/"
           export LB_ARCH=amd64
-          ./tools/os/live-build/build-live.sh 2>&1 | tee build-live-ci.log
+          # debootstrap/live-build require root privileges; run the build under sudo
+          sudo ./tools/os/live-build/build-live.sh 2>&1 | tee build-live-ci.log
 
       - name: Upload ISO artifact
         if: always()
