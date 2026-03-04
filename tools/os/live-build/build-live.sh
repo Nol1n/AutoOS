@@ -3,6 +3,18 @@ set -euo pipefail
 # Build script for live-build based ISO for OpenClaw
 # Edit variables below as needed
 
+# If not running as root, re-exec this script under sudo so debootstrap/chroot
+# operations (which require root) succeed. This makes the script robust when
+# invoked from CI steps that forget to use sudo.
+if [ "${EUID-$(id -u)}" -ne 0 ]; then
+  echo "Not running as root — re-executing under sudo"
+  exec sudo "$0" "$@"
+fi
+
+# Basic diagnostics to help CI debugging
+echo "uid=$(id -u) $(id)"
+echo "hostname:$(hostname)  uname:$(uname -a)"
+
 LB_WORKDIR=$(pwd)/live-build-work
 ISO_OUT=$(pwd)/live-image.iso
 REPO_ROOT=$(cd "$(dirname "$0")/../.." && pwd)
