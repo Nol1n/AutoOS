@@ -7,8 +7,8 @@ set -euo pipefail
 # operations (which require root) succeed. This makes the script robust when
 # invoked from CI steps that forget to use sudo.
 if [ "${EUID-$(id -u)}" -ne 0 ]; then
-  echo "Not running as root — re-executing under sudo"
-  exec sudo "$0" "$@"
+  echo "Not running as root — re-executing under sudo (preserving env)"
+  exec sudo -E "$0" "$@"
 fi
 
 # Basic diagnostics to help CI debugging
@@ -20,9 +20,9 @@ ISO_OUT=$(pwd)/live-image.iso
 REPO_ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 
 # Shell-level defaults used by lb config
-LB_DISTRIBUTION="jammy"
-LB_MIRROR_HTTP="http://archive.ubuntu.com/ubuntu/"
-LB_ARCH="amd64"
+LB_DISTRIBUTION="${LB_DISTRIBUTION:-jammy}"
+LB_MIRROR_HTTP="${LB_MIRROR_HTTP:-http://archive.ubuntu.com/ubuntu/}"
+LB_ARCH="${LB_ARCH:-amd64}"
 
 echo "Live-build workdir: $LB_WORKDIR"
 rm -rf "$LB_WORKDIR"
@@ -53,12 +53,12 @@ mkdir -p auto
 # concrete values (live-build executes auto/config in a clean environment).
 cat > auto/config <<EOF
 #!/usr/bin/env bash
-export LB_DISTRIBUTION="$LB_DISTRIBUTION"
-export LB_MIRROR_HTTP="$LB_MIRROR_HTTP"
-export LB_MIRROR_SUITE="$LB_DISTRIBUTION"
+export LB_DISTRIBUTION="${LB_DISTRIBUTION:-jammy}"
+export LB_MIRROR_HTTP="${LB_MIRROR_HTTP:-http://archive.ubuntu.com/ubuntu/}"
+export LB_MIRROR_SUITE="${LB_DISTRIBUTION:-jammy}"
 export LB_MIRROR_COMPONENTS="main universe multiverse restricted"
-export LB_ARCH="$LB_ARCH"
-export LB_ARCHES="$LB_ARCH"
+export LB_ARCH="${LB_ARCH:-amd64}"
+export LB_ARCHES="${LB_ARCH:-amd64}"
 EOF
 
 chmod +x auto/config || true
@@ -67,9 +67,9 @@ echo "Configuring lb (distribution: $LB_DISTRIBUTION)"
 
 # Ensure a config/bootstrap exists before running lb config so lb cannot fall back to defaults
 mkdir -p config/bootstrap
-echo "$LB_DISTRIBUTION" > config/bootstrap/suite
+echo "${LB_DISTRIBUTION:-jammy}" > config/bootstrap/suite
 cat > config/bootstrap/archives <<EOL
-deb $LB_MIRROR_HTTP $LB_DISTRIBUTION main universe multiverse restricted
+deb ${LB_MIRROR_HTTP:-http://archive.ubuntu.com/ubuntu/} ${LB_DISTRIBUTION:-jammy} main universe multiverse restricted
 EOL
 
 # Remove any leftover live-build cache to avoid restoring an old bootstrap (may require root)
@@ -118,8 +118,8 @@ fi
   # As a fallback, perform an explicit debootstrap for the desired Ubuntu suite so
   # the chroot is populated correctly (prevents accidental Debian wheezy bootstrap).
   if [ ! -d chroot ] || [ -z "$(ls -A chroot 2>/dev/null || true)" ]; then
-    echo "Chroot empty; running explicit debootstrap for $LB_DISTRIBUTION"
-    debootstrap --arch="$LB_ARCH" --variant=minbase "$LB_DISTRIBUTION" chroot "$LB_MIRROR_HTTP" || true
+    echo "Chroot empty; running explicit debootstrap for ${LB_DISTRIBUTION:-jammy}"
+    debootstrap --arch="${LB_ARCH:-amd64}" --variant=minbase "${LB_DISTRIBUTION:-jammy}" chroot "${LB_MIRROR_HTTP:-http://archive.ubuntu.com/ubuntu/}" || true
     echo "Explicit debootstrap complete; debootstrap log:" || true
     sed -n '1,120p' chroot/debootstrap/debootstrap.log || true
   fi
