@@ -1,0 +1,45 @@
+name: Build OpenClaw ISO
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ca-certificates wget gnupg2 curl ubuntu-keyring debian-archive-keyring \
+            live-build debootstrap squashfs-tools xorriso qemu-user-static binfmt-support \
+            grub-pc-bin grub-efi-amd64-bin
+
+      - name: Make build script executable
+        run: |
+          chmod +x tools/os/live-build/build-live.sh
+
+      - name: Run live-build
+        run: |
+          set -euxo pipefail
+          # Force jammy + amd64 to avoid ambiguous defaults
+          export LB_DISTRIBUTION=jammy
+          export LB_MIRROR_HTTP="http://archive.ubuntu.com/ubuntu/"
+          export LB_ARCH=amd64
+          ./tools/os/live-build/build-live.sh 2>&1 | tee build-live-ci.log
+
+      - name: Upload ISO artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-live-image
+          path: |
+            live-image.iso
+            live-build-work/binary-image.iso
+            build-live-ci.log

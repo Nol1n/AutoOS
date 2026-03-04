@@ -1,0 +1,3 @@
+http_port: 8765
+unix_socket: /run/openclaw/openclaw.sock
+log_dir: /var/log/openclaw

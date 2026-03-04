@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+# Create config dir and install example config if not exists
+if [ ! -f /etc/openclaw/config.yaml ]; then
+    mkdir -p /etc/openclaw
+    install -m 644 /usr/share/openclaw/config.yaml.example /etc/openclaw/config.yaml
+fi
+mkdir -p /var/log/openclaw
+chown root:root /var/log/openclaw || true
+exit 0

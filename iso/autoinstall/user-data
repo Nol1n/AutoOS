@@ -1,0 +1,15 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US
+  keyboard:
+    layout: 'us'
+  identity:
+    hostname: openclaw-desktop
+    username: ocduser
+    password: "$6$rounds=4096$somehash"
+  ssh:
+    install-server: false
+  late-commands:
+    - cp -r /cdrom/firstboot /target/opt/openclaw-firstboot
+    - curtin in-target --target /target -- bash /opt/openclaw-firstboot/99-openclaw-install.sh

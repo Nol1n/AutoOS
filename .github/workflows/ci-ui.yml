@@ -1,0 +1,44 @@
+name: CI-UI
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  build-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: Install system libs for Qt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-glx libegl1-mesa libxcb-xinerama0 libxkbcommon-x11-0
+
+      - name: Install full Python deps (UI)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Build .deb
+        run: |
+          sudo apt-get install -y dpkg-dev
+          bash packages/deb/build_deb.sh
+
+      - name: Upload artifact (.deb)
+        uses: actions/upload-artifact@v4
+        with:
+          name: openclaw-deb-ui
+          path: dist/*.deb

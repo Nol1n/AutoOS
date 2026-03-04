@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+# leave config in place for user to inspect
+exit 0

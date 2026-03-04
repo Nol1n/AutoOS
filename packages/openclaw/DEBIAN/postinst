@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+if [ -f /usr/share/openclaw/config.yaml.example ] && [ ! -f /etc/openclaw/config.yaml ]; then
+    mkdir -p /etc/openclaw
+    cp /usr/share/openclaw/config.yaml.example /etc/openclaw/config.yaml
+fi
+mkdir -p /var/log/openclaw
+exit 0

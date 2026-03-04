@@ -1,0 +1,15 @@
+[Unit]
+Description=OpenClaw daemon
+After=network.target
+
+[Service]
+Type=simple
+User=openclaw
+Group=openclaw
+ExecStart=/usr/bin/python3 -m openclaw.daemon --port 8765
+Restart=on-failure
+RuntimeDirectory=openclaw
+RuntimeDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target

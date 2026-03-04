@@ -1,0 +1,11 @@
+[Unit]
+Description=OpenClaw daemon (user)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/openclaw-daemon --config /etc/openclaw/config.yaml
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

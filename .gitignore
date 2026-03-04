@@ -1,0 +1,18 @@
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# OS
+.DS_Store
+
+# Virtualenv
+venv/
+
+# IDE
+.vscode/
+
+# Local live-build work and logs
+live-build-work/
+build-*.log
+*.log

@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+# Minimal live-build auto config for OpenClaw
+# This will be executed by live-build when building the image.
+# Adjust options as needed for your distro/arch.
+lb config \
+    --distribution noble \
+    --archive-areas "main universe multiverse restricted" \
+    --architectures amd64 \
+    --debian-installer live

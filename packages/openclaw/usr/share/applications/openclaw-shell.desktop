@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=OpenClaw Shell
+Exec=/usr/bin/openclaw-shell
+Type=Application
+Terminal=false
+Categories=Utility;
+OnlyShowIn=KDE;

@@ -1,0 +1,9 @@
+Package: openclaw
+Version: 0.1.0
+Section: utils
+Priority: optional
+Architecture: all
+Maintainer: OpenClaw <devnull@example.local>
+Depends: python3, python3-pip
+Description: OpenClaw daemon and shell (PHASE2 MVP)
+ Minimal OpenClaw components (daemon + QML shell).
